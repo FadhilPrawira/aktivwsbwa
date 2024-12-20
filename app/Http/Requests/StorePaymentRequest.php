@@ -11,7 +11,7 @@ class StorePaymentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,10 @@ class StorePaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'proof' => ['required', 'image', 'mimes:jpg,jpeg,png'],
+            'customer_bank_account' => 'required|string|max:255',
+            'customer_bank_name' => 'required|string|max:255',
+            'customer_bank_number' => 'required|string|max:255',
         ];
     }
 }

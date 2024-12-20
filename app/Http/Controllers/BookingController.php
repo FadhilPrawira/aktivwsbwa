@@ -27,7 +27,7 @@ class BookingController extends Controller
 
     public function bookingStore(StoreBookingRequest $request, Workshop $workshop)
     {
-        $validated = $request->validate();
+        $validated = $request->validated();
         $validated['workshop_id'] = $workshop->id;
 
         try {
@@ -52,12 +52,17 @@ class BookingController extends Controller
 
     public function checkBookingdetails(StoreCheckBookingRequest $request)
     {
-        $validated = $request->validate();
+        $validated = $request->validated();
 
         $myBookingDetails = $this->bookingService->getMyBookingDetails($validated);
 
         if ($myBookingDetails) {
-            return view('booking.my_booking_details', compact('myBookingDetails'));
+            $subTotalAmount = $myBookingDetails->workshop->price * $myBookingDetails->quantity;
+
+            $taxRate = 0.12;
+            $totalTax = $subTotalAmount * $taxRate;
+
+            return view('booking.my_booking_details', compact('myBookingDetails', 'subTotalAmount', 'totalTax'));
         }
 
         return redirect()->route('front.check_booking')->withErrors(['error' => 'Transaction not found.']);
@@ -81,12 +86,12 @@ class BookingController extends Controller
     public function paymentStore(StorePaymentRequest $request)
     {
         $validated = $request->validated();
-
         try {
             $bookingTransactionId = $this->bookingService->finalizeBookingAndPayment($validated);
             return redirect()->route('front.booking_finished', $bookingTransactionId);
         } catch (\Exception $e) {
             Log::error('Payment storage failed: ' . $e->getMessage());
+            // dd($e->getMessage());
             return redirect()->back()->withErrors(['error' => 'Unable to store payment details. Please try again.' . $e->getMessage()]);
         }
     }

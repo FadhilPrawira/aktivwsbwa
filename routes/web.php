@@ -10,7 +10,7 @@ Route::get('/', [FrontController::class, 'index'])->name('front.index');
 // model binding
 Route::get('/browse/{category:slug}', [FrontController::class, 'category'])->name('front.category');
 
-Route::get('/browse/{workshop:slug}', [FrontController::class, 'details'])->name('front.details');
+Route::get('/details/{workshop:slug}', [FrontController::class, 'details'])->name('front.details');
 
 Route::get('/check-booking', [BookingController::class, 'checkBooking'])->name('front.check_booking');
 Route::post('/check-booking/details', [BookingController::class, 'checkBookingdetails'])->name('front.check_booking_details');

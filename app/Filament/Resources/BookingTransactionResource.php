@@ -15,6 +15,7 @@ use Filament\Forms\Components\ToggleButtons;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\BookingTransactionResource\Pages;
 use App\Filament\Resources\BookingTransactionResource\RelationManagers;
+use Filament\Notifications\Notification;
 use Filament\Tables\Filters\SelectFilter;
 
 class BookingTransactionResource extends Resource
@@ -55,7 +56,7 @@ class BookingTransactionResource extends Resource
                                 ->afterStateUpdated(function ($state, callable $get, callable $set) {
                                     $price = $get('price');
                                     $subTotal = $price * $state;
-                                    $totalPpn = $subTotal * 0.11;
+                                    $totalPpn = $subTotal * 0.12;
                                     $totalAmount = $subTotal + $totalPpn;
 
                                     $set('total_amount', $totalAmount);
@@ -81,7 +82,7 @@ class BookingTransactionResource extends Resource
                                     // Calculate total amount when the form is loaded with existing data
                                     $price = $get('price');
                                     $subTotal = $price * $state;
-                                    $totalPpn = $subTotal * 0.11;
+                                    $totalPpn = $subTotal * 0.12;
                                     $totalAmount = $subTotal + $totalPpn;
 
                                     $set('total_amount', $totalAmount);
@@ -94,7 +95,7 @@ class BookingTransactionResource extends Resource
                                 ->readOnly()
                                 // TODO: Why error when disabled is written?
                                 // ->disabled()
-                                ->helperText('Harga sudah include PPN 11%'),
+                                ->helperText('Harga sudah include PPN 12%'),
 
                             Forms\Components\Repeater::make('participants')
                                 ->schema([
@@ -202,6 +203,23 @@ class BookingTransactionResource extends Resource
                 Tables\Actions\ViewAction::make(),
 
                 Tables\Actions\EditAction::make(),
+
+                Tables\Actions\Action::make('approve')
+                    ->label('Approve')
+                    ->action(function (BookingTransaction $record) {
+                        $record->is_paid = true;
+                        $record->save();
+
+                        // Trigger the custom notification
+                        Notification::make()
+                            ->title('Order Approved')
+                            ->success()
+                            ->body('The order has been successfully approved.')
+                            ->send();
+                    })
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->visible(fn(BookingTransaction $record) => !$record->is_paid),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

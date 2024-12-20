@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\BookingTransaction;
-use App\Models\Workshop;
+use App\Models\WorkshopParticipant;
 use App\Repositories\Contracts\BookingRepositoryInterface;
 use App\Repositories\Contracts\WorkshopRepositoryInterface;
 use Illuminate\Support\Facades\DB;
@@ -49,7 +49,7 @@ class BookingService
         $quantity = isset($orderData['quantity']) ? $orderData['quantity'] : 1;
         $subTotalAmount = $workshop->price * $quantity;
 
-        $taxRate = 0.11;
+        $taxRate = 0.12;
         $totalTax = $subTotalAmount * $taxRate;
 
         $totalAmount = $subTotalAmount + $totalTax;
@@ -88,9 +88,9 @@ class BookingService
                 'name' => $orderData['name'],
                 'email' => $orderData['email'],
                 'phone' => $orderData['phone'],
-                'customer_bank_name' => $orderData['customer_bank_name'],
-                'customer_bank_number' => $orderData['customer_bank_number'],
-                'customer_bank_account' => $orderData['customer_bank_account'],
+                'customer_bank_name' => $paymentData['customer_bank_name'],
+                'customer_bank_number' => $paymentData['customer_bank_number'],
+                'customer_bank_account' => $paymentData['customer_bank_account'],
                 'proof' => $proofPath,
                 'quantity' => $orderData['quantity'],
                 'total_amount' => $orderData['total_amount'],
@@ -101,7 +101,7 @@ class BookingService
 
             // Create workshop participants
             foreach ($orderData['participants'] as $participant) {
-                Workshop::create([
+                WorkshopParticipant::create([
                     'name' => $participant['name'],
                     'occupation' => $participant['occupation'],
                     'email' => $participant['email'],

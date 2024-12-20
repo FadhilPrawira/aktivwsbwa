@@ -22,10 +22,8 @@ class StoreCheckBookingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'proof' => ['required', 'image', 'mimes:png,jpg,jpeg'],
-            'customer_bank_account' => 'required|string|max:255',
-            'customer_bank_name' => 'required|string|max:255',
-            'customer_bank_number' => 'required|string|max:255',
+            'booking_trx_id' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:255'],
         ];
     }
 }
